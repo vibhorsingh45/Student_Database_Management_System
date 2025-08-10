@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Registration</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Full page background with gradient */
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #9b59b6, #3498db);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Background Bubbles */
+        body::before, body::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            top: -50px;
+            left: -50px;
+        }
+
+        body::after {
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.1);
+            bottom: -60px;
+            right: -60px;
+        }
+
+        /* Floating circles */
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.07);
+            animation: floatCircle 20s linear infinite;
+            z-index: 0;
+        }
+
+        /* Existing + new circles */
+        .circle:nth-child(1) { width: 60px; height: 60px; left: 20%; top: 10%; }
+        .circle:nth-child(2) { width: 40px; height: 40px; left: 70%; top: 25%; animation-duration: 25s; }
+        .circle:nth-child(3) { width: 30px; height: 30px; left: 50%; top: 80%; animation-duration: 18s; }
+        .circle:nth-child(4) { width: 80px; height: 80px; left: 85%; top: 10%; animation-duration: 30s; }
+        .circle:nth-child(5) { width: 50px; height: 50px; left: 10%; top: 60%; animation-duration: 22s; }
+        .circle:nth-child(6) { width: 35px; height: 35px; left: 40%; top: 40%; animation-duration: 26s; }
+        .circle:nth-child(7) { width: 70px; height: 70px; left: 75%; top: 70%; animation-duration: 28s; }
+        .circle:nth-child(8) { width: 25px; height: 25px; left: 90%; top: 50%; animation-duration: 24s; }
+        .circle:nth-child(9) { width: 55px; height: 55px; left: 30%; top: 85%; animation-duration: 27s; }
+
+        @keyframes floatCircle {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Unique new shapes */
+
+        /* Glowing Rings */
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            animation: floatRing 25s linear infinite;
+        }
+        .ring:nth-child(10) { width: 100px; height: 100px; left: 15%; top: 75%; }
+        .ring:nth-child(11) { width: 150px; height: 150px; left: 65%; top: 5%; animation-duration: 28s; }
+
+        @keyframes floatRing {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+            100% { transform: translateY(-100vh) rotate(180deg); opacity: 0; }
+        }
+
+        /* Triangles */
+        .triangle {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 25px solid rgba(255, 255, 255, 0.08);
+            animation: floatTriangle 20s linear infinite;
+        }
+        .triangle:nth-child(12) { left: 25%; top: 90%; animation-duration: 20s; }
+        .triangle:nth-child(13) { left: 80%; top: 60%; animation-duration: 24s; }
+
+        @keyframes floatTriangle {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Sparkles */
+        .sparkle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+        }
+        .sparkle:nth-child(14) { left: 40%; top: 50%; }
+        .sparkle:nth-child(15) { left: 60%; top: 30%; animation-delay: 2s; }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        /* Slogan styling */
+        .slogan {
+            font-family: 'Playfair Display', serif;
+            color: #ffffff;
+            font-size: 30px;
+            font-style: italic;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+            animation: float 3s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Form container styling */
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            width: 90%;
+            max-width: 400px;
+            z-index: 1;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+            outline: none;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            background-color: #003366;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #001f3f;
+        }
+
+        @media screen and (max-width: 480px) {
+            .slogan {
+                font-size: 22px;
+                padding: 0 10px;
+            }
+
+            .form-container {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animated floating circles -->
+    <div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    <div class="circle"></div><div class="circle"></div><div class="circle"></div>
+    <div class="circle"></div><div class="circle"></div><div class="circle"></div>
+
+    <!-- Rings -->
+    <div class="ring"></div><div class="ring"></div>
+
+    <!-- Triangles -->
+    <div class="triangle"></div><div class="triangle"></div>
+
+    <!-- Sparkles -->
+    <div class="sparkle"></div><div class="sparkle"></div>
+
+    <div class="slogan">"Learning today, leading tomorrow"</div>
+
+    <div class="form-container">
+        <h2>Register Student</h2>
+        <form method="POST" action="/submit">
+            <input type="text" name="name" placeholder="Name" required>
+            <input type="number" name="age" placeholder="Age" required>
+            <input type="text" name="roll" placeholder="Roll No." required>
+            <input type="text" name="city" placeholder="City" required>
+            <input type="date" name="dob" required>
+
+            <select name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+</body>
+</html>
