@@ -51,4 +51,4 @@ def submit():
     return 'Student registered successfully!'
 # Ensures this script runs the app only if it is the main program
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)  # Running the Flask app on port 5001
+    app.run(debug=True, port=5000)  # Running the Flask app on port 5001 
