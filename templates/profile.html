@@ -1,1 +1,126 @@
+{% extends "base.html" %}
+{% block title %}My Profile – EduPortal{% endblock %}
+{% block page_title %}My Profile{% endblock %}
 
+{% block content %}
+<div class="grid-2" style="align-items:start;">
+
+    <!-- Profile card -->
+    <div class="card" style="text-align:center;padding:36px 24px;">
+
+        <div style="width:90px;height:90px;border-radius:50%;
+                    background:linear-gradient(135deg,#7c3aed,#2563eb);
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:36px;font-weight:700;color:#fff;margin:0 auto 16px;">
+
+            {{ (student['name'][0] if student and student['name'] else 'U')|upper }}
+
+        </div>
+
+        <div style="font-size:22px;font-weight:700;color:#111827;">
+            {{ student['name'] if student else '—' }}
+        </div>
+
+        <div style="color:#6b7280;font-size:14px;margin-top:4px;">
+            Roll No. {{ student['roll'] if student else '—' }}
+        </div>
+
+        <div style="margin-top:12px;">
+            <span class="badge badge-purple">
+                {{ student['course'] if student else '—' }}
+            </span>
+        </div>
+
+        <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+            <div style="background:#f9fafb;border-radius:10px;padding:14px;">
+                <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">Age</div>
+                <div style="font-size:18px;font-weight:600;color:#374151;">
+                    {{ student['age'] if student else '—' }}
+                </div>
+            </div>
+
+            <div style="background:#f9fafb;border-radius:10px;padding:14px;">
+                <div style="font-size:11px;color:#9ca3af;margin-bottom:4px;">Gender</div>
+                <div style="font-size:18px;font-weight:600;color:#374151;">
+                    {{ student['gender'] if student else '—' }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Info details -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- Personal Info -->
+        <div class="card">
+            <div class="card-title">Personal Information</div>
+
+            <table style="width:100%;border-collapse:collapse;">
+
+                {% set info = [
+                    ('Full Name', student['name'] if student else None),
+                    ('Date of Birth', student['dob'] if student else None),
+                    ('Gender', student['gender'] if student else None),
+                    ('Age', student['age'] if student else None),
+                    ('City', student['city'] if student else None)
+                ] %}
+
+                {% for label, value in info %}
+                <tr>
+                    <td style="padding:10px 0;font-size:13px;color:#9ca3af;width:40%;border-bottom:1px solid #f3f4f6;">
+                        {{ label }}
+                    </td>
+                    <td style="padding:10px 0;font-size:14px;font-weight:500;color:#111827;border-bottom:1px solid #f3f4f6;">
+                        {{ value if value else '—' }}
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+
+        <!-- Academic Info -->
+        <div class="card">
+            <div class="card-title">Academic Information</div>
+
+            <table style="width:100%;border-collapse:collapse;">
+
+                {% set academic = [
+                    ('Roll No.', student['roll'] if student else None),
+                    ('Course / Class', student['course'] if student else None),
+                    ('Email', student['email'] if student else None),
+                    ('Registered On', student['created_at'] if student else None)
+                ] %}
+
+                {% for label, value in academic %}
+                <tr>
+                    <td style="padding:10px 0;font-size:13px;color:#9ca3af;width:40%;border-bottom:1px solid #f3f4f6;">
+                        {{ label }}
+                    </td>
+                    <td style="padding:10px 0;font-size:14px;font-weight:500;color:#111827;border-bottom:1px solid #f3f4f6;">
+                        {{ value if value else '—' }}
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display:flex;gap:12px;">
+            <a href="/progress"
+               style="flex:1;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-radius:10px;padding:13px;text-align:center;text-decoration:none;font-size:14px;font-weight:600;">
+                📈 View Progress
+            </a>
+
+            <a href="/results"
+               style="flex:1;background:#f3f4f6;color:#374151;border-radius:10px;padding:13px;text-align:center;text-decoration:none;font-size:14px;font-weight:600;">
+                📋 My Results
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
