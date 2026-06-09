@@ -4,60 +4,66 @@ import hashlib
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_change_this'
 
-# ── SQLite DB config ───────────────────────────────────────────────
+# ── SECRET KEY ─────────────────────────────
+app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key_change_this")
+
+
+# ── DATABASE PATH (Render-safe) ─────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "app.db")
 
 
-# ── Helper: DB Connection ───────────────────────────────────────────
+# ── DB CONNECTION ───────────────────────────
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # dict-like access
+    conn.row_factory = sqlite3.Row
     return conn
 
 
-# ── Helper: Password Hashing ────────────────────────────────────────
+# ── PASSWORD HASH ───────────────────────────
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-# ── Home ─────────────────────────────────────────────────────────────
+# ── HOME ────────────────────────────────────
 @app.route('/')
 def index():
     return redirect(url_for('register'))
 
 
-# ── Register ─────────────────────────────────────────────────────────
+# ── REGISTER ───────────────────────────────
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     error = None
 
     if request.method == 'POST':
-        name = request.form['name']
-        age = request.form['age']
-        roll = request.form['roll']
-        city = request.form['city']
-        dob = request.form['dob']
-        gender = request.form['gender']
-        email = request.form['email']
-        password = hash_password(request.form['password'])
-        course = request.form.get('course', 'General')
-
         try:
+            name = request.form['name']
+            age = request.form['age']
+            roll = request.form['roll']
+            city = request.form['city']
+            dob = request.form['dob']
+            gender = request.form['gender']
+            email = request.form['email']
+            password = hash_password(request.form['password'])
+            course = request.form.get('course', 'General')
+
             conn = get_db_connection()
             cur = conn.cursor()
 
-            # Check duplicate
-            cur.execute("SELECT id FROM students WHERE roll=? OR email=?", (roll, email))
+            cur.execute(
+                "SELECT id FROM students WHERE roll=? OR email=?",
+                (roll, email)
+            )
             existing = cur.fetchone()
 
             if existing:
-                error = "A student with this Roll No. or Email already exists."
+                error = "Student already exists."
             else:
                 cur.execute("""
-                    INSERT INTO students (name, age, roll, city, dob, gender, email, password, course)
+                    INSERT INTO students
+                    (name, age, roll, city, dob, gender, email, password, course)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, (name, age, roll, city, dob, gender, email, password, course))
 
@@ -73,20 +79,23 @@ def register():
     return render_template('register.html', error=error)
 
 
-# ── Login ────────────────────────────────────────────────────────────
+# ── LOGIN ───────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
 
     if request.method == 'POST':
-        roll = request.form['roll']
-        password = hash_password(request.form['password'])
-
         try:
+            roll = request.form['roll']
+            password = hash_password(request.form['password'])
+
             conn = get_db_connection()
             cur = conn.cursor()
 
-            cur.execute("SELECT * FROM students WHERE roll=? AND password=?", (roll, password))
+            cur.execute(
+                "SELECT * FROM students WHERE roll=? AND password=?",
+                (roll, password)
+            )
             student = cur.fetchone()
             conn.close()
 
@@ -95,7 +104,7 @@ def login():
                 session['student_name'] = student['name']
                 return redirect(url_for('dashboard'))
             else:
-                error = "Invalid Roll No. or Password."
+                error = "Invalid credentials."
 
         except Exception as e:
             error = str(e)
@@ -103,14 +112,14 @@ def login():
     return render_template('login.html', error=error)
 
 
-# ── Logout ───────────────────────────────────────────────────────────
+# ── LOGOUT ──────────────────────────────────
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
 
-# ── Dashboard ───────────────────────────────────────────────────────
+# ── DASHBOARD ───────────────────────────────
 @app.route('/dashboard')
 def dashboard():
     if 'student_id' not in session:
@@ -142,29 +151,39 @@ def dashboard():
 
     conn.close()
 
-    return render_template('dashboard.html',
-                           student=student,
-                           attendance=attendance,
-                           results=results)
+    return render_template(
+        'dashboard.html',
+        student=student,
+        attendance=attendance,
+        results=results
+    )
 
 
-# ── Profile ──────────────────────────────────────────────────────────
+# ── PROFILE (FIXED SAFELY) ──────────────────
 @app.route('/profile')
 def profile():
     if 'student_id' not in session:
         return redirect(url_for('login'))
 
-    conn = get_db_connection()
-    cur = conn.cursor()
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
 
-    cur.execute("SELECT * FROM students WHERE id=?", (session['student_id'],))
-    student = cur.fetchone()
+        cur.execute(
+            "SELECT * FROM students WHERE id=?",
+            (session['student_id'],)
+        )
+        student = cur.fetchone()
 
-    conn.close()
-    return render_template('profile.html', student=student)
+        conn.close()
+
+        return render_template('profile.html', student=student)
+
+    except Exception as e:
+        return f"Profile Error: {str(e)}"
 
 
-# ── Results ──────────────────────────────────────────────────────────
+# ── RESULTS ────────────────────────────────
 @app.route('/results')
 def results():
     if 'student_id' not in session:
@@ -185,7 +204,7 @@ def results():
     return render_template('results.html', results=results)
 
 
-# ── Attendance ───────────────────────────────────────────────────────
+# ── ATTENDANCE ─────────────────────────────
 @app.route('/attendance')
 def attendance():
     if 'student_id' not in session:
@@ -216,7 +235,7 @@ def attendance():
     return render_template('attendance.html', data=data, records=records)
 
 
-# ── Study Material ───────────────────────────────────────────────────
+# ── OTHER PAGES ────────────────────────────
 @app.route('/study-material')
 def study_material():
     if 'student_id' not in session:
@@ -232,7 +251,6 @@ def study_material():
     return render_template('study_material.html', materials=materials)
 
 
-# ── Store ────────────────────────────────────────────────────────────
 @app.route('/store')
 def store():
     if 'student_id' not in session:
@@ -248,7 +266,6 @@ def store():
     return render_template('store.html', items=items)
 
 
-# ── Suggestions ──────────────────────────────────────────────────────
 @app.route('/suggestions')
 def suggestions():
     if 'student_id' not in session:
@@ -269,7 +286,6 @@ def suggestions():
     return render_template('suggestions.html', suggestions=sugg)
 
 
-# ── Progress ─────────────────────────────────────────────────────────
 @app.route('/progress')
 def progress():
     if 'student_id' not in session:
@@ -295,7 +311,7 @@ def progress():
     return render_template('progress.html', progress_data=progress_data)
 
 
-# ── API: Progress Data ───────────────────────────────────────────────
+# ── API ─────────────────────────────────────
 @app.route('/api/progress-data')
 def progress_data_api():
     if 'student_id' not in session:
@@ -316,14 +332,15 @@ def progress_data_api():
 
     return jsonify([
         {
-            'subject': r['subject'],
-            'marks': float(r['marks_obtained']),
-            'date': str(r['exam_date'])
+            "subject": r["subject"],
+            "marks": float(r["marks_obtained"]),
+            "date": str(r["exam_date"])
         }
         for r in rows
     ])
 
 
-# ── Run App ──────────────────────────────────────────────────────────
-if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+# ── RUN (RENDER SAFE) ──────────────────────
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
