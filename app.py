@@ -59,16 +59,9 @@ def register():
                 return redirect(url_for('login'))
             cur.close()
         except Exception as e:
-            msg = str(e)
-            if "2002" in msg or "socket" in msg.lower():
-                error = "Cannot reach MySQL. Make sure it is running: sudo systemctl start mysql"
-            elif "1045" in msg or "Access denied" in msg:
-                error = "Wrong DB username/password in app.py."
-            elif "1049" in msg or "Unknown database" in msg:
-                error = "Database studentdb2 missing. Run: mysql -u root -p < setup_db.sql"
-            else:
-                error = f"Database error: {msg}"
-
+            error = f"Actual MySQL Error: {str(e)}"
+            print("MYSQL ERROR:", e)
+            
     return render_template('register.html', error=error)
 
 # ── Login ──────────────────────────────────────────────────────────────────────
