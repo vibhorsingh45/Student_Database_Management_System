@@ -4,151 +4,341 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register – EduPortal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,600&display=swap" rel="stylesheet">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #4c1d95 0%, #1e3a8a 100%);
-            display: flex; align-items: center; justify-content: center;
-            padding: 20px;
+            overflow-x: hidden;
+            background: #0a0a1a;
         }
-        .wrapper { display:flex; gap:0; border-radius:20px; overflow:hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.35); max-width:900px; width:100%; }
-        .left-panel {
-            background: linear-gradient(160deg, #6d28d9 0%, #1d4ed8 100%);
-            width:40%; padding:50px 36px;
-            display:flex; flex-direction:column; justify-content:center;
-        }
-        .left-panel .slogan {
-            font-family: 'Playfair Display', serif;
-            font-style:italic; color:#fff; font-size:24px;
-            line-height:1.4; margin-bottom:24px;
-        }
-        .left-panel p { color:rgba(255,255,255,0.7); font-size:14px; line-height:1.7; }
-        .left-panel .features { margin-top:32px; display:flex; flex-direction:column; gap:12px; }
-        .feature { display:flex; align-items:center; gap:10px; color:rgba(255,255,255,0.85); font-size:13px; }
-        .feature-dot { width:8px; height:8px; background:#a78bfa; border-radius:50%; flex-shrink:0; }
 
-        .form-panel { background:#fff; flex:1; padding:40px 36px; overflow-y:auto; }
-        .form-panel h2 { font-size:22px; font-weight:700; color:#111827; margin-bottom:6px; }
-        .form-panel .sub { font-size:14px; color:#6b7280; margin-bottom:28px; }
-        .form-panel .sub a { color:#6d28d9; text-decoration:none; font-weight:500; }
+        /* ── Animated background ── */
+        .bg-scene {
+            position: fixed; inset: 0; z-index: 0;
+            background: radial-gradient(ellipse 80% 60% at 20% 30%, #1a0533 0%, transparent 60%),
+                        radial-gradient(ellipse 70% 70% at 80% 70%, #001233 0%, transparent 60%),
+                        radial-gradient(ellipse 60% 80% at 50% 50%, #0d0d2b 0%, #050510 100%);
+        }
+
+        /* Stars */
+        .stars { position: absolute; inset: 0; overflow: hidden; }
+        .star {
+            position: absolute; border-radius: 50%;
+            background: white; animation: twinkle var(--dur) ease-in-out infinite var(--delay);
+        }
+        @keyframes twinkle {
+            0%,100% { opacity: var(--min-op); transform: scale(1); }
+            50%      { opacity: var(--max-op); transform: scale(1.5); }
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(60px); animation: drift var(--dur) ease-in-out infinite alternate;
+            opacity: 0.35;
+        }
+        @keyframes drift {
+            from { transform: translate(0, 0) scale(1); }
+            to   { transform: translate(var(--tx), var(--ty)) scale(1.1); }
+        }
+        .orb-1 { width:400px; height:400px; background:#6d28d9; top:-100px; left:-100px; --dur:12s; --tx:60px; --ty:40px; }
+        .orb-2 { width:350px; height:350px; background:#1d4ed8; bottom:-80px; right:-80px; --dur:14s; --tx:-50px; --ty:-60px; }
+        .orb-3 { width:250px; height:250px; background:#7c3aed; top:40%; left:60%; --dur:10s; --tx:-40px; --ty:30px; opacity:0.2; }
+        .orb-4 { width:200px; height:200px; background:#0ea5e9; top:20%; right:30%; --dur:16s; --tx:30px; --ty:-40px; opacity:0.15; }
+
+        /* Grid lines */
+        .grid-lines {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute; border-radius: 50%; pointer-events: none;
+            animation: float-up var(--dur) ease-in-out infinite var(--delay);
+            opacity: 0;
+        }
+        @keyframes float-up {
+            0%   { opacity:0; transform: translateY(0) rotate(0deg) scale(0.5); }
+            10%  { opacity: var(--op); }
+            90%  { opacity: var(--op); }
+            100% { opacity:0; transform: translateY(-120vh) rotate(720deg) scale(1.2); }
+        }
+
+        /* ── Layout ── */
+        .page {
+            position: relative; z-index: 10;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .wrapper {
+            display: flex; gap: 0;
+            border-radius: 24px; overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+            max-width: 940px; width: 100%;
+            backdrop-filter: blur(20px);
+        }
+
+        /* ── Left panel ── */
+        .left {
+            width: 42%;
+            background: linear-gradient(160deg, rgba(109,40,217,0.5) 0%, rgba(29,78,216,0.4) 100%);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 50px 40px;
+            display: flex; flex-direction: column; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+        .left::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at top left, rgba(167,139,250,0.2), transparent 60%);
+        }
+        .left-content { position: relative; z-index: 1; }
+
+        .logo-mark {
+            width: 52px; height: 52px; border-radius: 14px;
+            background: linear-gradient(135deg, #a78bfa, #60a5fa);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; margin-bottom: 28px;
+            box-shadow: 0 8px 24px rgba(139,92,246,0.4);
+        }
+        .left h1 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic; font-size: 30px; font-weight: 700;
+            color: #fff; line-height: 1.3; margin-bottom: 14px;
+        }
+        .left p { color: rgba(255,255,255,0.6); font-size: 14px; line-height: 1.75; }
+
+        .feature-list { margin-top: 36px; display: flex; flex-direction: column; gap: 14px; }
+        .feat {
+            display: flex; align-items: center; gap: 12px;
+            color: rgba(255,255,255,0.85); font-size: 13px; font-weight: 500;
+        }
+        .feat-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: center; font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Decorative circle on left */
+        .deco-circle {
+            position: absolute; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .dc-1 { width:200px;height:200px; bottom:-60px; right:-60px; }
+        .dc-2 { width:120px;height:120px; top:-30px; right:30px; }
+
+        /* ── Right / form panel ── */
+        .right {
+            flex: 1;
+            background: rgba(12, 10, 30, 0.85);
+            backdrop-filter: blur(30px);
+            padding: 40px 38px;
+            overflow-y: auto;
+        }
+        .right h2 { font-size: 22px; font-weight: 700; color: #f3f4f6; margin-bottom: 4px; }
+        .right .sub { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 28px; }
+        .right .sub a { color: #a78bfa; text-decoration: none; font-weight: 500; }
 
         .error-box {
-            background:#fee2e2; color:#991b1b; font-size:13px;
-            padding:10px 14px; border-radius:8px; margin-bottom:18px;
+            background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35);
+            color: #fca5a5; font-size: 13px;
+            padding: 11px 15px; border-radius: 10px; margin-bottom: 18px;
+            display: flex; align-items: center; gap: 8px;
         }
 
-        label { display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:5px; }
+        label {
+            display: block; font-size: 12px; font-weight: 600;
+            color: rgba(255,255,255,0.45); letter-spacing: 0.06em;
+            text-transform: uppercase; margin-bottom: 6px;
+        }
         input, select {
-            width:100%; padding:10px 13px; font-size:14px;
-            border:1.5px solid #e5e7eb; border-radius:8px;
-            font-family:inherit; transition:border 0.15s;
-            background:#fff; color:#111827;
+            width: 100%; padding: 11px 14px; font-size: 14px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+            font-family: inherit; color: #f3f4f6;
+            transition: border 0.2s, background 0.2s;
+            -webkit-appearance: none;
         }
-        input:focus, select:focus { border-color:#7c3aed; outline:none; box-shadow:0 0 0 3px rgba(124,58,237,0.12); }
-        .field { margin-bottom:14px; }
-
-        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-
-        button[type=submit] {
-            width:100%; padding:12px; background:linear-gradient(135deg,#6d28d9,#2563eb);
-            color:#fff; border:none; border-radius:10px; font-size:15px;
-            font-weight:600; cursor:pointer; margin-top:8px;
-            transition:opacity 0.2s;
+        input::placeholder { color: rgba(255,255,255,0.2); }
+        select option { background: #1a1a2e; color: #f3f4f6; }
+        input:focus, select:focus {
+            border-color: rgba(139,92,246,0.7);
+            background: rgba(139,92,246,0.08);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
         }
-        button[type=submit]:hover { opacity:0.9; }
+        .field { margin-bottom: 14px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        @media (max-width:640px) {
-            .left-panel { display:none; }
-            .wrapper { border-radius:14px; }
-            .grid-2 { grid-template-columns:1fr; gap:0; }
+        .submit-btn {
+            width: 100%; padding: 13px; margin-top: 6px;
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            color: #fff; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.2s, transform 0.1s;
+            box-shadow: 0 8px 24px rgba(109,40,217,0.4);
+            letter-spacing: 0.01em;
+        }
+        .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+        .submit-btn:active { transform: translateY(0); }
+
+        @media (max-width: 680px) {
+            .left { display: none; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .right { padding: 28px 22px; border-radius: 20px; }
+            .wrapper { border-radius: 20px; }
         }
     </style>
 </head>
 <body>
-<div class="wrapper">
-    <div class="left-panel">
-        <div class="slogan">"Learning today,<br>leading tomorrow"</div>
-        <p>Join thousands of students already managing their academics smarter.</p>
-        <div class="features">
-            <div class="feature"><span class="feature-dot"></span> Track attendance & results</div>
-            <div class="feature"><span class="feature-dot"></span> View progress charts</div>
-            <div class="feature"><span class="feature-dot"></span> Access study materials</div>
-            <div class="feature"><span class="feature-dot"></span> Shop for study supplies</div>
+
+<!-- Animated background -->
+<div class="bg-scene">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="grid-lines"></div>
+    <div class="stars" id="stars"></div>
+    <div id="particles"></div>
+</div>
+
+<div class="page">
+    <div class="wrapper">
+
+        <!-- Left panel -->
+        <div class="left">
+            <div class="deco-circle dc-1"></div>
+            <div class="deco-circle dc-2"></div>
+            <div class="left-content">
+                <div class="logo-mark">🎓</div>
+                <h1>"Learning today,<br>leading tomorrow"</h1>
+                <p>Your all-in-one academic companion. Track progress, access materials, and grow every day.</p>
+                <div class="feature-list">
+                    <div class="feat"><div class="feat-icon">📊</div> Track attendance & exam results</div>
+                    <div class="feat"><div class="feat-icon">📈</div> Visualise your academic progress</div>
+                    <div class="feat"><div class="feat-icon">📚</div> Access curated study materials</div>
+                    <div class="feat"><div class="feat-icon">🛒</div> Shop for study supplies</div>
+                    <div class="feat"><div class="feat-icon">💡</div> Get personalised suggestions</div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="form-panel">
-        <h2>Create your account</h2>
-        <p class="sub">Already registered? <a href="/login">Sign in here</a></p>
 
-        {% if error %}
-        <div class="error-box">{{ error }}</div>
-        {% endif %}
+        <!-- Right / form -->
+        <div class="right">
+            <h2>Create your account</h2>
+            <p class="sub">Already registered? <a href="/login">Sign in here</a></p>
 
-        <form method="POST" action="/register">
-            <div class="grid-2">
-                <div class="field">
-                    <label>Full Name</label>
-                    <input type="text" name="name" placeholder="Rahul Sharma" required>
+            {% if error %}
+            <div class="error-box">⚠ {{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="/register">
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Full Name</label>
+                        <input type="text" name="name" placeholder="Rahul Sharma" required>
+                    </div>
+                    <div class="field">
+                        <label>Age</label>
+                        <input type="number" name="age" placeholder="18" min="5" max="30" required>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Roll No.</label>
+                        <input type="text" name="roll" placeholder="CS2024001" required>
+                    </div>
+                    <div class="field">
+                        <label>City</label>
+                        <input type="text" name="city" placeholder="Lucknow" required>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Date of Birth</label>
+                        <input type="date" name="dob" required>
+                    </div>
+                    <div class="field">
+                        <label>Gender</label>
+                        <select name="gender" required>
+                            <option value="">Select gender</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="field">
-                    <label>Age</label>
-                    <input type="number" name="age" placeholder="18" min="5" max="30" required>
-                </div>
-            </div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Roll No.</label>
-                    <input type="text" name="roll" placeholder="CS2024001" required>
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="rahul@example.com" required>
                 </div>
                 <div class="field">
-                    <label>City</label>
-                    <input type="text" name="city" placeholder="Lucknow" required>
-                </div>
-            </div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>Date of Birth</label>
-                    <input type="date" name="dob" required>
-                </div>
-                <div class="field">
-                    <label>Gender</label>
-                    <select name="gender" required>
-                        <option value="">Select</option>
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
+                    <label>Course / Class</label>
+                    <select name="course">
+                        <option value="General">General</option>
+                        <option value="Class 9">Class 9</option>
+                        <option value="Class 10">Class 10</option>
+                        <option value="Class 11 (Science)">Class 11 – Science</option>
+                        <option value="Class 12 (Science)">Class 12 – Science</option>
+                        <option value="Class 11 (Commerce)">Class 11 – Commerce</option>
+                        <option value="Class 12 (Commerce)">Class 12 – Commerce</option>
+                        <option value="B.Tech">B.Tech</option>
+                        <option value="BCA">BCA</option>
+                        <option value="B.Sc">B.Sc</option>
                     </select>
                 </div>
-            </div>
-            <div class="field">
-                <label>Email Address</label>
-                <input type="email" name="email" placeholder="rahul@example.com" required>
-            </div>
-            <div class="field">
-                <label>Course / Class</label>
-                <select name="course">
-                    <option value="General">General</option>
-                    <option value="Class 9">Class 9</option>
-                    <option value="Class 10">Class 10</option>
-                    <option value="Class 11 (Science)">Class 11 – Science</option>
-                    <option value="Class 12 (Science)">Class 12 – Science</option>
-                    <option value="Class 11 (Commerce)">Class 11 – Commerce</option>
-                    <option value="Class 12 (Commerce)">Class 12 – Commerce</option>
-                    <option value="B.Tech">B.Tech</option>
-                    <option value="BCA">BCA</option>
-                    <option value="B.Sc">B.Sc</option>
-                </select>
-            </div>
-            <div class="field">
-                <label>Password</label>
-                <input type="password" name="password" placeholder="Min. 6 characters" minlength="6" required>
-            </div>
-            <button type="submit">Register &rarr;</button>
-        </form>
+                <div class="field">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Min. 6 characters" minlength="6" required>
+                </div>
+                <button type="submit" class="submit-btn">Create Account →</button>
+            </form>
+        </div>
     </div>
 </div>
+
+<script>
+// Generate stars
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    const dur = (Math.random() * 4 + 2).toFixed(1) + 's';
+    const delay = (Math.random() * 6).toFixed(1) + 's';
+    const minOp = (Math.random() * 0.2 + 0.05).toFixed(2);
+    const maxOp = (Math.random() * 0.5 + 0.3).toFixed(2);
+    s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${dur};--delay:${delay};--min-op:${minOp};--max-op:${maxOp}`;
+    starsEl.appendChild(s);
+}
+
+// Generate floating particles
+const pcEl = document.getElementById('particles');
+const pColors = ['#a78bfa','#60a5fa','#f472b6','#34d399','#fbbf24'];
+for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 6 + 3;
+    const dur = (Math.random() * 12 + 10).toFixed(1) + 's';
+    const delay = (Math.random() * 10).toFixed(1) + 's';
+    const op = (Math.random() * 0.3 + 0.15).toFixed(2);
+    const color = pColors[Math.floor(Math.random() * pColors.length)];
+    p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;bottom:${Math.random()*30}%;background:${color};--dur:${dur};--delay:-${delay};--op:${op}`;
+    pcEl.appendChild(p);
+}
+</script>
 </body>
 </html>
