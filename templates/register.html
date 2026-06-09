@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register – EduPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4c1d95 0%, #1e3a8a 100%);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .wrapper { display:flex; gap:0; border-radius:20px; overflow:hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.35); max-width:900px; width:100%; }
+        .left-panel {
+            background: linear-gradient(160deg, #6d28d9 0%, #1d4ed8 100%);
+            width:40%; padding:50px 36px;
+            display:flex; flex-direction:column; justify-content:center;
+        }
+        .left-panel .slogan {
+            font-family: 'Playfair Display', serif;
+            font-style:italic; color:#fff; font-size:24px;
+            line-height:1.4; margin-bottom:24px;
+        }
+        .left-panel p { color:rgba(255,255,255,0.7); font-size:14px; line-height:1.7; }
+        .left-panel .features { margin-top:32px; display:flex; flex-direction:column; gap:12px; }
+        .feature { display:flex; align-items:center; gap:10px; color:rgba(255,255,255,0.85); font-size:13px; }
+        .feature-dot { width:8px; height:8px; background:#a78bfa; border-radius:50%; flex-shrink:0; }
+
+        .form-panel { background:#fff; flex:1; padding:40px 36px; overflow-y:auto; }
+        .form-panel h2 { font-size:22px; font-weight:700; color:#111827; margin-bottom:6px; }
+        .form-panel .sub { font-size:14px; color:#6b7280; margin-bottom:28px; }
+        .form-panel .sub a { color:#6d28d9; text-decoration:none; font-weight:500; }
+
+        .error-box {
+            background:#fee2e2; color:#991b1b; font-size:13px;
+            padding:10px 14px; border-radius:8px; margin-bottom:18px;
+        }
+
+        label { display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:5px; }
+        input, select {
+            width:100%; padding:10px 13px; font-size:14px;
+            border:1.5px solid #e5e7eb; border-radius:8px;
+            font-family:inherit; transition:border 0.15s;
+            background:#fff; color:#111827;
+        }
+        input:focus, select:focus { border-color:#7c3aed; outline:none; box-shadow:0 0 0 3px rgba(124,58,237,0.12); }
+        .field { margin-bottom:14px; }
+
+        .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+        button[type=submit] {
+            width:100%; padding:12px; background:linear-gradient(135deg,#6d28d9,#2563eb);
+            color:#fff; border:none; border-radius:10px; font-size:15px;
+            font-weight:600; cursor:pointer; margin-top:8px;
+            transition:opacity 0.2s;
+        }
+        button[type=submit]:hover { opacity:0.9; }
+
+        @media (max-width:640px) {
+            .left-panel { display:none; }
+            .wrapper { border-radius:14px; }
+            .grid-2 { grid-template-columns:1fr; gap:0; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="left-panel">
+        <div class="slogan">"Learning today,<br>leading tomorrow"</div>
+        <p>Join thousands of students already managing their academics smarter.</p>
+        <div class="features">
+            <div class="feature"><span class="feature-dot"></span> Track attendance & results</div>
+            <div class="feature"><span class="feature-dot"></span> View progress charts</div>
+            <div class="feature"><span class="feature-dot"></span> Access study materials</div>
+            <div class="feature"><span class="feature-dot"></span> Shop for study supplies</div>
+        </div>
+    </div>
+    <div class="form-panel">
+        <h2>Create your account</h2>
+        <p class="sub">Already registered? <a href="/login">Sign in here</a></p>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/register">
+            <div class="grid-2">
+                <div class="field">
+                    <label>Full Name</label>
+                    <input type="text" name="name" placeholder="Rahul Sharma" required>
+                </div>
+                <div class="field">
+                    <label>Age</label>
+                    <input type="number" name="age" placeholder="18" min="5" max="30" required>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Roll No.</label>
+                    <input type="text" name="roll" placeholder="CS2024001" required>
+                </div>
+                <div class="field">
+                    <label>City</label>
+                    <input type="text" name="city" placeholder="Lucknow" required>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Date of Birth</label>
+                    <input type="date" name="dob" required>
+                </div>
+                <div class="field">
+                    <label>Gender</label>
+                    <select name="gender" required>
+                        <option value="">Select</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="rahul@example.com" required>
+            </div>
+            <div class="field">
+                <label>Course / Class</label>
+                <select name="course">
+                    <option value="General">General</option>
+                    <option value="Class 9">Class 9</option>
+                    <option value="Class 10">Class 10</option>
+                    <option value="Class 11 (Science)">Class 11 – Science</option>
+                    <option value="Class 12 (Science)">Class 12 – Science</option>
+                    <option value="Class 11 (Commerce)">Class 11 – Commerce</option>
+                    <option value="Class 12 (Commerce)">Class 12 – Commerce</option>
+                    <option value="B.Tech">B.Tech</option>
+                    <option value="BCA">BCA</option>
+                    <option value="B.Sc">B.Sc</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Min. 6 characters" minlength="6" required>
+            </div>
+            <button type="submit">Register &rarr;</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

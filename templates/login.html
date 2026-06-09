@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – EduPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:'Inter',sans-serif; min-height:100vh;
+            background:linear-gradient(135deg, #4c1d95 0%, #1e3a8a 100%);
+            display:flex; align-items:center; justify-content:center; padding:20px;
+        }
+        .card {
+            background:#fff; border-radius:20px;
+            box-shadow:0 25px 60px rgba(0,0,0,0.3);
+            padding:44px 40px; width:100%; max-width:400px;
+        }
+        .logo { font-family:'Playfair Display',serif; font-style:italic; font-size:28px; color:#6d28d9; margin-bottom:4px; }
+        .sub { font-size:14px; color:#6b7280; margin-bottom:30px; }
+        .sub a { color:#6d28d9; text-decoration:none; font-weight:500; }
+        h2 { font-size:20px; font-weight:700; color:#111827; margin-bottom:2px; }
+        .error-box { background:#fee2e2; color:#991b1b; font-size:13px; padding:10px 14px; border-radius:8px; margin-bottom:18px; }
+        label { display:block; font-size:13px; font-weight:500; color:#374151; margin-bottom:5px; }
+        input {
+            width:100%; padding:11px 13px; font-size:14px;
+            border:1.5px solid #e5e7eb; border-radius:8px; font-family:inherit;
+            transition:border 0.15s; color:#111827;
+        }
+        input:focus { border-color:#7c3aed; outline:none; box-shadow:0 0 0 3px rgba(124,58,237,0.12); }
+        .field { margin-bottom:16px; }
+        button {
+            width:100%; padding:12px; background:linear-gradient(135deg,#6d28d9,#2563eb);
+            color:#fff; border:none; border-radius:10px; font-size:15px;
+            font-weight:600; cursor:pointer; margin-top:6px; transition:opacity 0.2s;
+        }
+        button:hover { opacity:0.9; }
+        .divider { text-align:center; color:#9ca3af; font-size:13px; margin:20px 0 0; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="logo">EduPortal</div>
+    <h2>Welcome back</h2>
+    <p class="sub">New student? <a href="/register">Create an account</a></p>
+
+    {% if error %}
+    <div class="error-box">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/login">
+        <div class="field">
+            <label>Roll No.</label>
+            <input type="text" name="roll" placeholder="CS2024001" required autofocus>
+        </div>
+        <div class="field">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Your password" required>
+        </div>
+        <button type="submit">Sign In &rarr;</button>
+    </form>
+    <p class="divider">Sign in with your Roll No. and the password you set during registration.</p>
+</div>
+</body>
+</html>

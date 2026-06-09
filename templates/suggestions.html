@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Suggestions – EduPortal{% endblock %}
+{% block page_title %}Suggestions & Tips{% endblock %}
+
+{% block content %}
+<!-- Static smart suggestions based on subject -->
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-title">💡 General Academic Suggestions</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;">
+        {% for tip in [
+            ('📅 Study Schedule', 'Plan 2-3 hours of focused study daily. Use the Pomodoro technique: 25 min study, 5 min break.', '#ede9fe', '#5b21b6'),
+            ('📖 Active Recall', 'After reading, close the book and write what you remember. This doubles retention.', '#dbeafe', '#1e40af'),
+            ('✍ Practice Papers', 'Solve last year question papers regularly. Understand the exam pattern thoroughly.', '#d1fae5', '#065f46'),
+            ('🧘 Take Breaks', 'Short breaks every hour improve focus. Walk, stretch, or meditate for 5 minutes.', '#fef3c7', '#92400e'),
+            ('👥 Group Study', 'Study with peers once a week. Teaching others reinforces your own understanding.', '#fce7f3', '#9d174d'),
+            ('📲 Limit Distractions', 'Use phone in study-free zones. Apps like Forest can help maintain focus.', '#f3f4f6', '#374151'),
+        ] %}
+        <div style="background:{{ tip[2] }};border-radius:12px;padding:16px;">
+            <div style="font-size:15px;font-weight:600;color:{{ tip[3] }};margin-bottom:6px;">{{ tip[0] }}</div>
+            <div style="font-size:13px;color:{{ tip[3] }};opacity:0.85;line-height:1.6;">{{ tip[1] }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Subject-specific tips -->
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-title">📚 Subject-Specific Tips</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+        {% for subject, tips in [
+            ('Mathematics', ['Practice daily — math is a skill, not memorisation.', 'Focus on understanding concepts, not just formulas.', 'Solve NCERT + reference problems both.']),
+            ('Physics', ['Draw diagrams for every problem.', 'Understand the derivations, don\'t just memorise.', 'Practice numericals from multiple sources.']),
+            ('Chemistry', ['Make flashcards for reactions and formulas.', 'Link organic chemistry to real-world applications.', 'Revise periodic table trends weekly.']),
+            ('Computer Science', ['Code daily — even 30 minutes counts.', 'Debug your own errors before googling.', 'Build small projects to apply concepts.']),
+        ] %}
+        <div style="background:#f9fafb;border-radius:10px;padding:16px;">
+            <div style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px;">{{ subject }}</div>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;">
+                {% for tip in tips %}
+                <li style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#4b5563;">
+                    <span style="color:#7c3aed;flex-shrink:0;">→</span> {{ tip }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Personal suggestions from DB -->
+{% if suggestions %}
+<div class="card">
+    <div class="card-title">📩 Suggestions from Your Teacher</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+    {% for s in suggestions %}
+    <div style="border-left:4px solid #7c3aed;padding:14px 16px;background:#fafafa;border-radius:0 10px 10px 0;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <div style="font-size:14px;font-weight:600;color:#111827;">{{ s.title }}</div>
+            <span class="badge badge-purple">{{ s.type }}</span>
+        </div>
+        <div style="font-size:13px;color:#4b5563;line-height:1.6;">{{ s.message }}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:8px;">{{ s.created_at.strftime('%d %b %Y') if s.created_at else '' }}</div>
+    </div>
+    {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Store – EduPortal{% endblock %}
+{% block page_title %}Study Store{% endblock %}
+
+{% block content %}
+<div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:14px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:16px;">
+    <div style="font-size:32px;">🛒</div>
+    <div>
+        <div style="font-size:16px;font-weight:600;color:#92400e;">Student Study Store</div>
+        <div style="font-size:13px;color:#b45309;">Quality study supplies at student-friendly prices. Contact admin to place an order.</div>
+    </div>
+</div>
+
+{% if items %}
+{% set categories = items | map(attribute='category') | unique | list %}
+{% for cat in categories %}
+<div style="margin-bottom:28px;">
+    <div style="font-size:15px;font-weight:600;color:#374151;margin-bottom:12px;">{{ cat }}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;">
+    {% for item in items if item.category == cat %}
+    <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:36px;text-align:center;padding:10px;background:#f9fafb;border-radius:10px;">
+            {% if item.category == 'Electronics' %}📱
+            {% elif item.category == 'Books' %}📖
+            {% else %}✏️{% endif %}
+        </div>
+        <div>
+            <div style="font-size:14px;font-weight:600;color:#111827;">{{ item.name }}</div>
+            <div style="font-size:12px;color:#9ca3af;margin-top:3px;">{{ item.description }}</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;">
+            <div style="font-size:18px;font-weight:700;color:#7c3aed;">₹{{ '%.0f' % item.price }}</div>
+            <span class="badge badge-green">{{ item.stock }} left</span>
+        </div>
+        <button onclick="alert('To order: {{ item.name }}\nPrice: ₹{{ '%.0f' % item.price }}\n\nPlease contact the school office or admin to place your order.')"
+            style="width:100%;padding:9px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">
+            Order Now
+        </button>
+    </div>
+    {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="card" style="text-align:center;padding:60px;">
+    <div style="font-size:48px;margin-bottom:16px;">🛒</div>
+    <div style="font-size:16px;font-weight:600;color:#374151;">Store is empty</div>
+    <div style="font-size:14px;color:#9ca3af;margin-top:8px;">No items are available right now.</div>
+</div>
+{% endif %}
+{% endblock %}

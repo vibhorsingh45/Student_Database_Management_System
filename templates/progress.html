@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Progress – EduPortal{% endblock %}
+{% block page_title %}Academic Progress{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+{% if progress_data %}
+<!-- Subject stats -->
+<div class="stat-grid" style="margin-bottom:24px;">
+{% for p in progress_data %}
+{% set pct = ((p.avg_marks / 100 * 100)|round(1)) %}
+<div class="stat-card">
+    <div class="stat-label">{{ p.subject }}</div>
+    <div class="stat-value" style="font-size:22px;color:{% if p.avg_marks >= 75 %}#10b981{% elif p.avg_marks >= 50 %}#f59e0b{% else %}#ef4444{% endif %}">
+        {{ p.avg_marks|round(1) }}
+    </div>
+    <div class="stat-sub">avg &nbsp;·&nbsp; Best: {{ p.best|int }} &nbsp;·&nbsp; {{ p.exams }} exams</div>
+</div>
+{% endfor %}
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-title">Average Marks by Subject</div>
+        <canvas id="barChart" style="max-height:280px;"></canvas>
+    </div>
+    <div class="card">
+        <div class="card-title">Score Range (Best vs Lowest)</div>
+        <canvas id="rangeChart" style="max-height:280px;"></canvas>
+    </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+    <div class="card-title">Progress Over Time</div>
+    <canvas id="lineChart" style="max-height:280px;"></canvas>
+</div>
+
+{% else %}
+<div class="card" style="text-align:center;padding:60px;">
+    <div style="font-size:48px;margin-bottom:16px;">📊</div>
+    <div style="font-size:16px;font-weight:600;color:#374151;">No progress data yet</div>
+    <div style="font-size:14px;color:#9ca3af;margin-top:8px;">Charts will appear once exam results are recorded for you.</div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if progress_data %}
+<script>
+const subjects = {{ progress_data | map(attribute='subject') | list | tojson }};
+const avgs     = {{ progress_data | map(attribute='avg_marks') | list | tojson }};
+const bests    = {{ progress_data | map(attribute='best') | list | tojson }};
+const lows     = {{ progress_data | map(attribute='lowest') | list | tojson }};
+
+const colors = ['#7c3aed','#3b82f6','#10b981','#f59e0b','#ef4444','#ec4899'];
+
+// Bar chart
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+        labels: subjects,
+        datasets: [{
+            label: 'Avg. Marks',
+            data: avgs,
+            backgroundColor: colors.slice(0, subjects.length),
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: '#f3f4f6' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Range chart
+new Chart(document.getElementById('rangeChart'), {
+    type: 'bar',
+    data: {
+        labels: subjects,
+        datasets: [
+            { label: 'Best', data: bests, backgroundColor: '#10b981', borderRadius: 4, borderSkipped: false },
+            { label: 'Lowest', data: lows, backgroundColor: '#ef4444', borderRadius: 4, borderSkipped: false }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: '#f3f4f6' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Line chart – load from API
+fetch('/api/progress-data')
+    .then(r => r.json())
+    .then(data => {
+        if (!data.length) return;
+        const grouped = {};
+        data.forEach(d => {
+            if (!grouped[d.subject]) grouped[d.subject] = { dates: [], marks: [] };
+            grouped[d.subject].dates.push(d.date);
+            grouped[d.subject].marks.push(d.marks);
+        });
+        const datasets = Object.entries(grouped).map(([subj, vals], i) => ({
+            label: subj,
+            data: vals.marks,
+            borderColor: colors[i % colors.length],
+            backgroundColor: 'transparent',
+            tension: 0.4,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+        }));
+        const allDates = [...new Set(data.map(d => d.date))].sort();
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: { labels: allDates, datasets },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: '#f3f4f6' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}
