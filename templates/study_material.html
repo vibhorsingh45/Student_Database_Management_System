@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Study Material – EduPortal{% endblock %}
+{% block page_title %}Study Material{% endblock %}
+{% block content %}
+{% set ti={'PDF':'📄','Video':'🎬','Notes':'📝','Quiz':'❓'} %}
+{% set tc={'PDF':'badge-red','Video':'badge-purple','Notes':'badge-blue','Quiz':'badge-amber'} %}
+{% if materials %}
+{% set subjects=materials|map(attribute='subject')|unique|list %}
+{% for subject in subjects %}
+<div style="margin-bottom:24px;">
+    <div style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:12px;">📚 {{ subject }}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;">
+    {% for m in materials if m['subject']==subject %}
+    <div class="card" style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div style="font-size:24px;">{{ ti.get(m['type'],'📄') }}</div>
+            <span class="badge {{ tc.get(m['type'],'badge-blue') }}">{{ m['type'] }}</span>
+        </div>
+        <div>
+            <div style="font-size:15px;font-weight:600;color:#f3f4f6;">{{ m['title'] }}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px;">{{ m['description'] }}</div>
+        </div>
+        {% if m['file_url'] %}
+        <a href="{{ m['file_url'] }}" target="_blank" style="margin-top:auto;display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,0.25);border:1px solid rgba(124,58,237,0.4);color:#c4b5fd;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
+            {{ '▶ Watch' if m['type']=='Video' else '⬇ Download' }}
+        </a>{% endif %}
+    </div>{% endfor %}
+    </div>
+</div>{% endfor %}
+{% else %}
+<div class="card" style="text-align:center;padding:60px;">
+    <div style="font-size:48px;margin-bottom:16px;">📚</div>
+    <div style="font-size:16px;font-weight:600;color:#e5e7eb;">No study materials yet</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.35);margin-top:8px;">Materials will appear here once your teacher uploads them.</div>
+</div>{% endif %}
+{% endblock %}

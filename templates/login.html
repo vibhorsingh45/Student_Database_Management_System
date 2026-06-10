@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – EduPortal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;min-height:100vh;background:#0a0a1a;overflow:hidden;}
+        .bg-scene{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 30%,#1a0533 0%,transparent 60%),radial-gradient(ellipse 70% 70% at 80% 70%,#001233 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 50% 50%,#0d0d2b 0%,#050510 100%);}
+        .orb{position:absolute;border-radius:50%;filter:blur(60px);animation:drift var(--dur,12s) ease-in-out infinite alternate;opacity:0.3;}
+        @keyframes drift{from{transform:translate(0,0) scale(1);}to{transform:translate(var(--tx,40px),var(--ty,30px)) scale(1.1);}}
+        .orb-1{width:500px;height:500px;background:#6d28d9;top:-150px;left:-150px;--dur:13s;--tx:70px;--ty:50px;}
+        .orb-2{width:400px;height:400px;background:#1d4ed8;bottom:-100px;right:-100px;--dur:15s;--tx:-60px;--ty:-70px;}
+        .grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:60px 60px;}
+        .stars{position:absolute;inset:0;overflow:hidden;}
+        .star{position:absolute;border-radius:50%;background:white;animation:twinkle var(--dur) ease-in-out infinite var(--delay);}
+        @keyframes twinkle{0%,100%{opacity:var(--min-op,.1);transform:scale(1);}50%{opacity:var(--max-op,.6);transform:scale(1.5);}}
+        .page{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+        .card{background:rgba(12,10,30,0.85);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.08);border-radius:22px;box-shadow:0 40px 80px rgba(0,0,0,0.5);padding:44px 40px;width:100%;max-width:400px;}
+        .logo{font-family:'Playfair Display',serif;font-style:italic;font-size:28px;color:#a78bfa;margin-bottom:6px;}
+        h2{font-size:20px;font-weight:700;color:#f3f4f6;margin-bottom:2px;}
+        .sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;}
+        .sub a{color:#a78bfa;text-decoration:none;font-weight:500;}
+        .error-box{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;font-size:13px;padding:11px 15px;border-radius:10px;margin-bottom:18px;}
+        label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
+        input{width:100%;padding:11px 14px;font-size:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-family:inherit;color:#f3f4f6;transition:border .2s,background .2s;}
+        input::placeholder{color:rgba(255,255,255,0.2);}
+        input:focus{border-color:rgba(139,92,246,0.7);background:rgba(139,92,246,0.08);outline:none;box-shadow:0 0 0 3px rgba(139,92,246,0.15);}
+        .field{margin-bottom:16px;}
+        button{width:100%;padding:13px;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s,transform .1s;box-shadow:0 8px 24px rgba(109,40,217,0.35);}
+        button:hover{opacity:.9;transform:translateY(-1px);}
+        .hint{text-align:center;color:rgba(255,255,255,0.25);font-size:12px;margin-top:18px;line-height:1.6;}
+    </style>
+</head>
+<body>
+<div class="bg-scene">
+    <div class="orb orb-1"></div><div class="orb orb-2"></div>
+    <div class="grid-lines"></div>
+    <div class="stars" id="stars"></div>
+</div>
+<div class="page">
+    <div class="card">
+        <div class="logo">EduPortal</div>
+        <h2>Welcome back</h2>
+        <p class="sub">New student? <a href="/register">Create an account</a></p>
+        {% if error %}<div class="error-box">⚠ {{ error }}</div>{% endif %}
+        <form method="POST" action="/login">
+            <div class="field"><label>Roll No.</label><input type="text" name="roll" placeholder="CS2024001" required autofocus></div>
+            <div class="field"><label>Password</label><input type="password" name="password" placeholder="Your password" required></div>
+            <button type="submit">Sign In →</button>
+        </form>
+        <p class="hint">Sign in with your Roll No. and the password you chose during registration.</p>
+    </div>
+</div>
+<script>
+const el=document.getElementById('stars');
+for(let i=0;i<100;i++){const s=document.createElement('div');s.className='star';const sz=(Math.random()*2+0.5).toFixed(1);s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${(Math.random()*4+2).toFixed(1)}s;--delay:${(Math.random()*6).toFixed(1)}s;--min-op:${(Math.random()*.15+.03).toFixed(2)};--max-op:${(Math.random()*.5+.2).toFixed(2)}`;el.appendChild(s);}
+</script>
+</body>
+</html>

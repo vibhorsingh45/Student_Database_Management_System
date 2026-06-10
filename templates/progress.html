@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Progress – EduPortal{% endblock %}
+{% block page_title %}Academic Progress{% endblock %}
+{% block extra_head %}<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>{% endblock %}
+{% block content %}
+{% if progress_data %}
+<div class="stat-grid" style="margin-bottom:22px;">
+{% for p in progress_data %}
+<div class="stat-card">
+    <div class="stat-label">{{ p['subject'] }}</div>
+    <div class="stat-value" style="font-size:22px;color:{% if p['avg_marks']>=75 %}#34d399{% elif p['avg_marks']>=50 %}#fbbf24{% else %}#f87171{% endif %}">{{ p['avg_marks']|round(1) }}</div>
+    <div class="stat-sub">avg · Best: {{ p['best']|int }} · {{ p['exams'] }} exams</div>
+</div>{% endfor %}
+</div>
+<div class="grid-2">
+    <div class="card"><div class="card-title">Avg Marks by Subject</div><canvas id="barChart" style="max-height:260px;"></canvas></div>
+    <div class="card"><div class="card-title">Best vs Lowest</div><canvas id="rangeChart" style="max-height:260px;"></canvas></div>
+</div>
+<div class="card" style="margin-top:18px;"><div class="card-title">Progress Over Time</div><canvas id="lineChart" style="max-height:260px;"></canvas></div>
+{% else %}
+<div class="card" style="text-align:center;padding:60px;">
+    <div style="font-size:48px;margin-bottom:16px;">📊</div>
+    <div style="font-size:16px;font-weight:600;color:#e5e7eb;">No progress data yet</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.35);margin-top:8px;">Charts appear once exam results are recorded.</div>
+</div>{% endif %}
+{% endblock %}
+{% block scripts %}{% if progress_data %}
+<script>
+const C=['#a78bfa','#60a5fa','#34d399','#fbbf24','#f87171','#f472b6'];
+const subj={{ progress_data|map(attribute='subject')|list|tojson }};
+const avgs={{ progress_data|map(attribute='avg_marks')|list|tojson }};
+const bests={{ progress_data|map(attribute='best')|list|tojson }};
+const lows={{ progress_data|map(attribute='lowest')|list|tojson }};
+const gridColor='rgba(255,255,255,0.07)';
+const tickColor='rgba(255,255,255,0.4)';
+const opts={responsive:true,plugins:{legend:{labels:{color:'rgba(255,255,255,0.6)'}}},scales:{x:{grid:{color:gridColor},ticks:{color:tickColor}},y:{grid:{color:gridColor},ticks:{color:tickColor},beginAtZero:true,max:100}}};
+new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:subj,datasets:[{label:'Avg',data:avgs,backgroundColor:C.slice(0,subj.length),borderRadius:8,borderSkipped:false}]},options:{...opts,plugins:{legend:{display:false}}}});
+new Chart(document.getElementById('rangeChart'),{type:'bar',data:{labels:subj,datasets:[{label:'Best',data:bests,backgroundColor:'#34d399',borderRadius:4,borderSkipped:false},{label:'Lowest',data:lows,backgroundColor:'#f87171',borderRadius:4,borderSkipped:false}]},options:opts});
+fetch('/api/progress-data').then(r=>r.json()).then(data=>{
+    if(!data.length)return;
+    const g={};data.forEach(d=>{if(!g[d.subject])g[d.subject]={dates:[],marks:[]};g[d.subject].dates.push(d.date);g[d.subject].marks.push(d.marks);});
+    const ds=Object.entries(g).map(([s,v],i)=>({label:s,data:v.marks,borderColor:C[i%C.length],backgroundColor:'transparent',tension:0.4,pointRadius:5}));
+    const dates=[...new Set(data.map(d=>d.date))].sort();
+    new Chart(document.getElementById('lineChart'),{type:'line',data:{labels:dates,datasets:ds},options:opts});
+});
+</script>{% endif %}{% endblock %}

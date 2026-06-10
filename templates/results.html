@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Results – EduPortal{% endblock %}
+{% block page_title %}My Results{% endblock %}
+{% block content %}
+{% if results %}
+{% set tot=namespace(m=0,mx=0,n=0) %}{% for r in results %}{% set tot.m=tot.m+r['marks_obtained']|float %}{% set tot.mx=tot.mx+r['total_marks']|float %}{% set tot.n=tot.n+1 %}{% endfor %}
+{% set op=((tot.m/tot.mx*100)|round(1)) if tot.mx>0 else 0 %}
+<div class="stat-grid" style="margin-bottom:22px;">
+    <div class="stat-card"><div class="stat-label">Total Exams</div><div class="stat-value" style="color:#c4b5fd">{{ tot.n }}</div></div>
+    <div class="stat-card"><div class="stat-label">Marks Scored</div><div class="stat-value" style="color:#93c5fd">{{ tot.m|int }}</div><div class="stat-sub">out of {{ tot.mx|int }}</div></div>
+    <div class="stat-card"><div class="stat-label">Overall %</div><div class="stat-value" style="color:{% if op>=75 %}#34d399{% elif op>=50 %}#fbbf24{% else %}#f87171{% endif %}">{{ op }}%</div></div>
+    <div class="stat-card"><div class="stat-label">Grade</div><div class="stat-value" style="color:#e5e7eb;font-size:30px;">{% if op>=90 %}A+{% elif op>=80 %}A{% elif op>=70 %}B+{% elif op>=60 %}B{% elif op>=50 %}C{% else %}D{% endif %}</div></div>
+</div>
+{% endif %}
+<div class="card">
+    <div class="card-title">All Exam Results</div>
+    {% if results %}
+    <div class="table-wrap"><table>
+        <thead><tr><th>Exam</th><th>Subject</th><th>Date</th><th>Marks</th><th>Percentage</th><th>Grade</th></tr></thead>
+        <tbody>{% for r in results %}
+        {% set pct=((r['marks_obtained']|float/r['total_marks']|float*100)|round(1)) if r['total_marks'] else 0 %}
+        <tr>
+            <td style="font-weight:500;color:#f3f4f6;">{{ r['exam_name'] }}</td>
+            <td>{{ r['subject'] }}</td>
+            <td style="color:rgba(255,255,255,0.4);">{{ r['exam_date'] }}</td>
+            <td style="font-weight:600;color:#e5e7eb;">{{ r['marks_obtained']|int }}/{{ r['total_marks']|int }}</td>
+            <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:80px;"><div class="progress-fill {% if pct>=75 %}fill-green{% elif pct>=50 %}fill-amber{% else %}fill-red{% endif %}" style="width:{{ pct }}%"></div></div><span style="font-size:13px;color:rgba(255,255,255,0.6);">{{ pct }}%</span></div></td>
+            <td><span class="badge {% if pct>=75 %}badge-green{% elif pct>=50 %}badge-amber{% else %}badge-red{% endif %}">{% if pct>=90 %}A+{% elif pct>=80 %}A{% elif pct>=70 %}B+{% elif pct>=60 %}B{% elif pct>=50 %}C{% else %}D{% endif %}</span></td>
+        </tr>{% endfor %}
+        </tbody>
+    </table></div>
+    {% else %}
+    <div style="text-align:center;padding:50px;color:rgba(255,255,255,0.3);">
+        <div style="font-size:44px;margin-bottom:12px;">📋</div>
+        <div style="font-size:15px;">No results recorded yet.</div>
+    </div>{% endif %}
+</div>
+{% endblock %}

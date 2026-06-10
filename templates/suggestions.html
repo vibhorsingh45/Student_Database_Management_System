@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Suggestions – EduPortal{% endblock %}
+{% block page_title %}Suggestions & Tips{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-title">💡 General Academic Suggestions</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;">
+    {% for title,tip,bg,border in [
+        ('📅 Study Schedule','Plan 2–3 hours daily. Use Pomodoro: 25 min study, 5 min break.','rgba(124,58,237,0.15)','rgba(124,58,237,0.3)'),
+        ('📖 Active Recall','After reading, close the book and write what you remember. Doubles retention.','rgba(59,130,246,0.15)','rgba(59,130,246,0.3)'),
+        ('✍ Practice Papers','Solve last year question papers. Understand the exam pattern thoroughly.','rgba(16,185,129,0.15)','rgba(16,185,129,0.3)'),
+        ('🧘 Take Breaks','Short breaks every hour improve focus. Walk or stretch for 5 minutes.','rgba(245,158,11,0.15)','rgba(245,158,11,0.3)'),
+        ('👥 Group Study','Study with peers weekly. Teaching others reinforces your own knowledge.','rgba(236,72,153,0.15)','rgba(236,72,153,0.3)'),
+        ('📲 Limit Distractions','Use your phone in study-free zones. Apps like Forest can help focus.','rgba(255,255,255,0.06)','rgba(255,255,255,0.1)'),
+    ] %}
+    <div style="background:{{ bg }};border:1px solid {{ border }};border-radius:12px;padding:16px;">
+        <div style="font-size:14px;font-weight:600;color:#f3f4f6;margin-bottom:6px;">{{ title }}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;">{{ tip }}</div>
+    </div>{% endfor %}
+    </div>
+</div>
+<div class="card" style="margin-bottom:20px;">
+    <div class="card-title">📚 Subject-Specific Tips</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+    {% for subj,tips in [('Mathematics',['Practice daily — math is a skill, not memorisation.','Focus on understanding concepts, not just formulas.','Solve NCERT + reference problems both.']),('Physics',['Draw diagrams for every problem.','Understand derivations; don\'t just memorise.','Practice numericals from multiple sources.']),('Chemistry',['Make flashcards for reactions and formulas.','Link organic chemistry to real-world applications.','Revise periodic table trends weekly.']),('Computer Science',['Code daily — even 30 minutes counts.','Debug your own errors before googling.','Build small projects to apply concepts.'])] %}
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:16px;">
+        <div style="font-size:14px;font-weight:600;color:#e5e7eb;margin-bottom:8px;">{{ subj }}</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">{% for tip in tips %}
+        <div style="display:flex;gap:8px;font-size:13px;color:rgba(255,255,255,0.55);">
+            <span style="color:#a78bfa;flex-shrink:0;">→</span>{{ tip }}
+        </div>{% endfor %}</div>
+    </div>{% endfor %}
+    </div>
+</div>
+{% if suggestions %}
+<div class="card">
+    <div class="card-title">📩 From Your Teacher</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+    {% for s in suggestions %}
+    <div style="border-left:3px solid #7c3aed;padding:14px 16px;background:rgba(124,58,237,0.08);border-radius:0 10px 10px 0;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <div style="font-size:14px;font-weight:600;color:#f3f4f6;">{{ s['title'] }}</div>
+            <span class="badge badge-purple">{{ s['type'] }}</span>
+        </div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;">{{ s['message'] }}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:8px;">{{ s['created_at']|fmtdate('%d %b %Y') }}</div>
+    </div>{% endfor %}
+    </div>
+</div>{% endif %}
+{% endblock %}
