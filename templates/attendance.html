@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Attendance – EduPortal{% endblock %}
+{% block page_title %}Attendance{% endblock %}
+{% block content %}
+<div class="grid-2" style="align-items:start;">
+    <div class="card">
+        <div class="card-title">Subject-wise Summary</div>
+        {% if data %}{% for a in data %}{% set pct=((a['present']/a['total']*100)|round(1)) if a['total']>0 else 0 %}
+        <div style="margin-bottom:18px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <div>
+                    <div style="font-size:14px;font-weight:600;color:#e5e7eb;">{{ a['subject'] }}</div>
+                    <div style="font-size:12px;color:rgba(255,255,255,0.35);">{{ a['present'] }} present / {{ a['total'] }} total</div>
+                </div>
+                <span class="badge {% if pct>=75 %}badge-green{% elif pct>=60 %}badge-amber{% else %}badge-red{% endif %}" style="font-size:13px;padding:5px 12px;">{{ pct }}%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill {% if pct>=75 %}fill-green{% elif pct>=60 %}fill-amber{% else %}fill-red{% endif %}" style="width:{{ pct }}%"></div></div>
+            {% if pct<75 %}<div style="font-size:12px;color:#f87171;margin-top:4px;">⚠ Below 75% required attendance</div>{% endif %}
+        </div>{% endfor %}
+        {% else %}<p style="color:rgba(255,255,255,0.3);font-size:14px;">No attendance data yet.</p>{% endif %}
+    </div>
+    <div class="card">
+        <div class="card-title">Overall Stats</div>
+        {% if data %}
+        {% set ns=namespace(p=0,t=0) %}{% for a in data %}{% set ns.p=ns.p+a['present'] %}{% set ns.t=ns.t+a['total'] %}{% endfor %}
+        {% set overall=((ns.p/ns.t*100)|round(1)) if ns.t>0 else 0 %}
+        <div style="text-align:center;padding:24px 0;">
+            <div style="font-size:58px;font-weight:700;color:{% if overall>=75 %}#34d399{% elif overall>=60 %}#fbbf24{% else %}#f87171{% endif %};">{{ overall }}%</div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.45);margin-top:4px;">Overall Attendance</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.3);margin-top:2px;">{{ ns.p }} / {{ ns.t }} classes attended</div>
+        </div>
+        <div style="background:{% if overall>=75 %}rgba(16,185,129,0.15){% elif overall>=60 %}rgba(245,158,11,0.15){% else %}rgba(239,68,68,0.15){% endif %};border:1px solid {% if overall>=75 %}rgba(16,185,129,0.3){% elif overall>=60 %}rgba(245,158,11,0.3){% else %}rgba(239,68,68,0.3){% endif %};border-radius:10px;padding:14px;font-size:13px;color:{% if overall>=75 %}#6ee7b7{% elif overall>=60 %}#fcd34d{% else %}#fca5a5{% endif %};">
+            {% if overall>=75 %}✅ Great! Above 75% requirement.{% elif overall>=60 %}⚠️ Warning: Below 75%. Attend more classes.{% else %}🚨 Critical: Below 60%. Immediate action needed!{% endif %}
+        </div>
+        {% else %}<p style="color:rgba(255,255,255,0.3);font-size:14px;">No data yet.</p>{% endif %}
+    </div>
+</div>
+<div class="card" style="margin-top:18px;">
+    <div class="card-title">Attendance Log</div>
+    {% if records %}
+    <div class="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Subject</th><th>Status</th></tr></thead>
+        <tbody>{% for r in records %}
+        <tr>
+            <td style="color:rgba(255,255,255,0.4);">{{ r['date'] }}</td>
+            <td style="font-weight:500;color:#e5e7eb;">{{ r['subject'] }}</td>
+            <td><span class="badge {% if r['status']=='Present' %}badge-green{% else %}badge-red{% endif %}">{{ '✓ Present' if r['status']=='Present' else '✗ Absent' }}</span></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);"><div style="font-size:40px;margin-bottom:12px;">📅</div><div>No records found.</div></div>{% endif %}
+</div>
+{% endblock %}
