@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduPortal{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --purple:#7c3aed; --purple-light:#ede9fe; --purple-dark:#5b21b6;
+            --blue:#3b82f6;   --blue-light:#eff6ff;
+            --green:#10b981;  --green-light:#d1fae5;
+            --amber:#f59e0b;  --amber-light:#fef3c7;
+            --red:#ef4444;    --red-light:#fee2e2;
+            --gray-50:#f9fafb; --gray-100:#f3f4f6; --gray-200:#e5e7eb;
+            --gray-500:#6b7280; --gray-700:#374151; --gray-900:#111827;
+            --sidebar-w:240px;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+
+        /* ── Animated space background (shared) ── */
+        body { font-family:'Inter',sans-serif; min-height:100vh; background:#0a0a1a; overflow-x:hidden; }
+        .bg-scene {
+            position:fixed; inset:0; z-index:0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 30%, #1a0533 0%, transparent 60%),
+                radial-gradient(ellipse 70% 70% at 80% 70%, #001233 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 50% 50%, #0d0d2b 0%, #050510 100%);
+        }
+        .orb { position:absolute; border-radius:50%; filter:blur(60px); opacity:0.3; animation:drift var(--dur,12s) ease-in-out infinite alternate; }
+        @keyframes drift { from{transform:translate(0,0) scale(1);} to{transform:translate(var(--tx,40px),var(--ty,30px)) scale(1.1);} }
+        .orb-1{width:500px;height:500px;background:#6d28d9;top:-150px;left:-150px;--dur:13s;--tx:70px;--ty:50px;}
+        .orb-2{width:400px;height:400px;background:#1d4ed8;bottom:-100px;right:-100px;--dur:15s;--tx:-60px;--ty:-70px;}
+        .orb-3{width:300px;height:300px;background:#7c3aed;top:45%;left:55%;--dur:11s;--tx:-50px;--ty:40px;opacity:0.18;}
+        .orb-4{width:250px;height:250px;background:#0ea5e9;top:15%;right:25%;--dur:17s;--tx:40px;--ty:-50px;opacity:0.13;}
+        .grid-lines {
+            position:absolute;inset:0;
+            background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),
+                             linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);
+            background-size:60px 60px;
+        }
+        .stars{position:absolute;inset:0;overflow:hidden;}
+        .star{position:absolute;border-radius:50%;background:white;animation:twinkle var(--dur) ease-in-out infinite var(--delay);}
+        @keyframes twinkle{0%,100%{opacity:var(--min-op,0.1);transform:scale(1);}50%{opacity:var(--max-op,0.6);transform:scale(1.5);}}
+
+        /* ── Sidebar ── */
+        .sidebar {
+            position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
+            background:rgba(15,10,40,0.75);backdrop-filter:blur(24px);
+            border-right:1px solid rgba(255,255,255,0.07);
+            display:flex;flex-direction:column;overflow-y:auto;z-index:200;
+        }
+        .sidebar-header{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.07);}
+        .logo{font-size:20px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px;}
+        .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#7c3aed,#3b82f6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+        .sidebar-user{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.07);}
+        .user-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#3b82f6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff;}
+        .user-name{color:#fff;font-size:14px;font-weight:600;margin-top:8px;}
+        .user-roll{color:rgba(255,255,255,0.4);font-size:12px;margin-top:2px;}
+        .sidebar-nav{padding:10px 10px;flex:1;}
+        .nav-label{font-size:10px;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,0.3);text-transform:uppercase;padding:12px 8px 5px;}
+        .nav-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:rgba(255,255,255,0.55);font-size:14px;font-weight:500;text-decoration:none;transition:all .15s;margin-bottom:2px;}
+        .nav-link:hover{background:rgba(255,255,255,0.08);color:#fff;}
+        .nav-link.active{background:rgba(124,58,237,0.45);color:#fff;}
+        .nav-link svg{width:17px;height:17px;flex-shrink:0;}
+        .sidebar-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,0.07);}
+        .logout-btn{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.4);font-size:13px;text-decoration:none;transition:color .15s;}
+        .logout-btn:hover{color:#f87171;}
+
+        /* ── Main content ── */
+        .main{margin-left:var(--sidebar-w);min-height:100vh;position:relative;z-index:10;}
+        .topbar{
+            background:rgba(10,8,25,0.7);backdrop-filter:blur(20px);
+            border-bottom:1px solid rgba(255,255,255,0.07);
+            padding:15px 28px;display:flex;align-items:center;justify-content:space-between;
+            position:sticky;top:0;z-index:100;
+        }
+        .topbar h1{font-size:19px;font-weight:600;color:#f3f4f6;}
+        .badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+        .badge-purple{background:rgba(124,58,237,0.25);color:#c4b5fd;}
+        .badge-green {background:rgba(16,185,129,0.2); color:#6ee7b7;}
+        .badge-amber {background:rgba(245,158,11,0.2); color:#fcd34d;}
+        .badge-red   {background:rgba(239,68,68,0.2);  color:#fca5a5;}
+        .badge-blue  {background:rgba(59,130,246,0.2); color:#93c5fd;}
+
+        .page-body{padding:24px 28px;}
+
+        /* ── Cards (glassmorphism) ── */
+        .card{background:rgba(255,255,255,0.05);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:22px 24px;}
+        .card-title{font-size:15px;font-weight:600;color:#e5e7eb;margin-bottom:16px;}
+        .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px;}
+        .stat-card{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px 20px;}
+        .stat-label{font-size:12px;color:rgba(255,255,255,0.45);font-weight:500;}
+        .stat-value{font-size:26px;font-weight:700;margin-top:4px;}
+        .stat-sub{font-size:12px;color:rgba(255,255,255,0.35);margin-top:4px;}
+
+        /* ── Table ── */
+        .table-wrap{overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,0.08);}
+        table{width:100%;border-collapse:collapse;background:transparent;}
+        th{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.05em;padding:12px 16px;text-align:left;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.07);}
+        td{padding:13px 16px;font-size:14px;color:rgba(255,255,255,0.75);border-bottom:1px solid rgba(255,255,255,0.05);}
+        tr:last-child td{border-bottom:none;}
+        tr:hover td{background:rgba(255,255,255,0.03);}
+
+        /* ── Progress bar ── */
+        .progress-bar{height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;}
+        .progress-fill{height:100%;border-radius:4px;transition:width .5s;}
+        .fill-green{background:#10b981;} .fill-amber{background:#f59e0b;} .fill-red{background:#ef4444;} .fill-purple{background:#7c3aed;}
+
+        /* ── Helpers ── */
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+        .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+        @media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+        @media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;}.page-body{padding:16px;}}
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Shared animated bg -->
+<div class="bg-scene">
+    <div class="orb orb-1"></div><div class="orb orb-2"></div>
+    <div class="orb orb-3"></div><div class="orb orb-4"></div>
+    <div class="grid-lines"></div>
+    <div class="stars" id="bgStars"></div>
+</div>
+
+{% if session.student_name %}
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo"><div class="logo-icon">🎓</div>EduPortal</div>
+    </div>
+    <div class="sidebar-user">
+        <div class="user-avatar">{{ session.student_name[0]|upper }}</div>
+        <div class="user-name">{{ session.student_name }}</div>
+        <div class="user-roll">{{ session.student_roll }}</div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Main</div>
+        <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint=='dashboard' %}active{% endif %}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            Dashboard
+        </a>
+        <a href="{{ url_for('profile') }}" class="nav-link {% if request.endpoint=='profile' %}active{% endif %}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            My Profile
+        </a>
+        <div class="nav-label">Academics</div>
+        <a href="{{ url_for('results') }}" class="nav-link {% if request.endpoint=='results' %}active{% endif %}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            Results
+        </a>
+        <a href="{{ url_for('attendance') }}" class="nav-link {% if request.endpoint=='attendance' %}active{% endif %}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Attendance
+        </a>
+        <a href="{{ url_for('progress') }}" class="nav-link {% if request.endpoint=='progress' %}active{% endif %}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            Progress
+        </a>
+        <div class="nav-label">Resources</div>
+        <a href="{{ url_for('study_material') }}" class="nav-link {% if request.endpoint=='study_material' %}active{% endif %}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            Study Material
+        </a>
+        <a href="{{ url_for('suggestions') }}" class="nav-link {% if request.endpoint=='suggestions' %}active{% endif %}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            Suggestions
+        </a>
+        <a href="{{ url_for('store') }}" class="nav-link {% if request.endpoint=='store' %}active{% endif %}">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            Store
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="{{ url_for('logout') }}" class="logout-btn">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            Sign Out
+        </a>
+    </div>
+</aside>
+{% endif %}
+
+<main class="main" {% if not session.student_name %}style="margin-left:0"{% endif %}>
+    {% if session.student_name %}
+    <div class="topbar">
+        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+        <span class="badge badge-purple">Student</span>
+    </div>
+    {% endif %}
+    <div class="page-body">{% block content %}{% endblock %}</div>
+</main>
+
+<script>
+(function(){
+    const el = document.getElementById('bgStars');
+    if(!el) return;
+    for(let i=0;i<100;i++){
+        const s=document.createElement('div'); s.className='star';
+        const sz=(Math.random()*2+0.5).toFixed(1);
+        s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${(Math.random()*4+2).toFixed(1)}s;--delay:${(Math.random()*6).toFixed(1)}s;--min-op:${(Math.random()*.15+.03).toFixed(2)};--max-op:${(Math.random()*.5+.2).toFixed(2)}`;
+        el.appendChild(s);
+    }
+})();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
